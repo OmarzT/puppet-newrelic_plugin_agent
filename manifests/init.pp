@@ -13,18 +13,36 @@ class newrelic_plugin_agent(
   $cfg_file       = "${cfg_dir}/newrelic_plugin_agent.cfg"
   $log_file       = "${log_dir}/newrelic_plugin_agent.log"
 
-  include stdlib,
-          newrelic_plugin_agent::config,
-          newrelic_plugin_agent::service
-
-  if $::osfamily !~ /(Debian|RedHat)/ {
-    fail("osfamily: ${::osfamily} is incompatible with this module")
+  case $::osfamily {
+    'Debian': { $template = 'newrelic_plugin_agent/newrelic_plugin_agent.deb.erb' }
+    'RedHat': { $template = 'newrelic_plugin_agent/newrelic_plugin_agent.rhel.erb' }
+    default:  { fail("Could not find init script template for ${::osfamily} osfamily.") }
   }
+ 
+  include stdlib,
+          newrelic_plugin_agent::config
 
   package{'newrelic-plugin-agent':
     ensure   => $ensure,
     source   => $source,
     provider => pip,
+  }
+
+  file {'/etc/init.d/newrelic_plugin_agent':
+    ensure  => present,
+    content => template($template),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '755',
+    notify  => Service[newrelic_plugin_agent],
+  }
+
+  service {'newrelic_plugin_agent':
+    ensure   => running,
+    enable   => true,
+    require  => [ User[$service_user],
+                  File["/etc/init.d/newrelic_plugin_agent"],
+                  Concat[$cfg_file] ]
   }
 
 }
