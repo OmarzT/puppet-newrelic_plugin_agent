@@ -9,7 +9,10 @@ class newrelic_plugin_agent(
   $log_dir        = '/var/log/newrelic',
   $pid_file       = '/var/run/newrelic/newrelic_plugin_agent.pid'
 ) {
- 
+  
+  include stdlib,
+          newrelic_plugin_agent::config
+
   $cfg_file       = "${cfg_dir}/newrelic_plugin_agent.cfg"
   $log_file       = "${log_dir}/newrelic_plugin_agent.log"
 
@@ -18,9 +21,6 @@ class newrelic_plugin_agent(
     'RedHat': { $template = 'newrelic_plugin_agent/newrelic_plugin_agent.rhel.erb' }
     default:  { fail("Could not find init script template for ${::osfamily} osfamily.") }
   }
- 
-  include stdlib,
-          newrelic_plugin_agent::config
 
   package{'newrelic-plugin-agent':
     ensure   => $ensure,
@@ -40,7 +40,8 @@ class newrelic_plugin_agent(
   service {'newrelic_plugin_agent':
     ensure   => running,
     enable   => true,
-    require  => [ User[$service_user],
+    require  => [ Package["newrelic-plugin-agent"],
+                  User[$service_user],
                   File["/etc/init.d/newrelic_plugin_agent"],
                   Concat[$cfg_file] ]
   }

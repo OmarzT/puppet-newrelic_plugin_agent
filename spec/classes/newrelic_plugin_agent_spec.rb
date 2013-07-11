@@ -65,8 +65,9 @@ describe 'newrelic_plugin_agent', :type => 'class' do
       should contain_service('newrelic_plugin_agent').with(
         'ensure'   => 'running',
         'enable'   => 'true',
-        'require'  => [ 'User[newrelic]',
-		                    'File[/etc/init.d/newrelic_plugin_agent]',
+        'require'  => [ 'Package[newrelic-plugin-agent]',
+		        'User[newrelic]',
+		        'File[/etc/init.d/newrelic_plugin_agent]',
                         "Concat[#{cfg_file}]" ]
       ) 
     end
@@ -90,8 +91,9 @@ describe 'newrelic_plugin_agent', :type => 'class' do
       should contain_service('newrelic_plugin_agent').with(
         'ensure'   => 'running',
         'enable'   => 'true',
-        'require'  => [ 'User[newrelic]',
-		                    'File[/etc/init.d/newrelic_plugin_agent]',
+        'require'  => [ 'Package[newrelic-plugin-agent]',
+		        'User[newrelic]',
+		        'File[/etc/init.d/newrelic_plugin_agent]',
                         "Concat[#{cfg_file}]" ]
       ) 
     end
